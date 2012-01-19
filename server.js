@@ -70,7 +70,7 @@ require('http').createServer(function (req, resp) {
 	if (name) {
 		resp.writeHead(200, headers);
 		resp.write(preamble);
-		if (!name.match(/^[\w '&;.\-~#]+$/))
+		if (!name.match(/^[\w '&;.\-~#]{1,30}$/))
 			return resp.end('Bad name.');
 		r.sadd('names', name, function (err) {
 			if (err)
