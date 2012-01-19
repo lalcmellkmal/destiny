@@ -6,17 +6,24 @@ var r = require('redis').createClient();
 var fate = {};
 fate.method = 'of decompression,of asphyxiation,of blood loss,of head loss,of haemorrhage,of vaporization'.split(',');
 fate.adverb = 'horribly,quickly,slowly,painlessly,gloriously,honorably,quietly'.split(',');
-fate.where = 'in the vacuum of space,in the canteen,in the parlor,on the bridge,in the airlock,in the barracks,at the bar,in the hold,on an invading ship,in their cabin'.split(',');
-fate.cause = 'at the hand of $whom,by backstab courtesy of $whom,by their own undoing,to avenge $whom'.split(',');
+fate.where = "in the vacuum of space,in the canteen,in the parlor,on the bridge,in the airlock,in the barracks,at the bar,in the hold,on an invading ship,in their cabin,in $friend's cabin,in $enemy's cabin".split(',');
+fate.cause = 'at the hand of $enemy,by backstab courtesy of $enemy,by their own undoing,to avenge $enemy'.split(',');
+fate.activity = 'while trying to $assist $friend,while $assisting $friend,while failing to $assist $friend'.split(',');
+fate.assist = 'protect,save,hold on to,find,make their peace with'.split(',');
+fate.assisting = 'protecting,saving,holding on to,finding,making their peace with'.split(',');
 
-var WHOM = 'no-one';
+var CAST;
 
 function DESTINY(victim) {
 	var dead = roll(1) == 0;
 	if (!dead)
 		return [victim, ' will survive.'];
 
-	var bits = ['adverb', 'method', 'cause', 'where'].map(destiny);
+	var bits = ['adverb', 'method', 'cause'];
+	if (flip())
+		bits.push('activity');
+	bits.push('where');
+	bits = bits.map(destiny);
 	bits.unshift(victim, 'will die');
 
 	var red = roll(bits.length);
@@ -32,8 +39,8 @@ function DESTINY(victim) {
 }
 
 function destiny(what) {
-	if (what == 'whom')
-		return [safe('<em>'), WHOM, safe('</em>')];
+	if (['enemy', 'friend'].indexOf(what) >= 0)
+		return [safe('<em>'), CAST[what], safe('</em>')];
 	var kakera = randomOf(fate[what]).split(/\$(\w+)/g);
 	for (var i = 0; i < kakera.length; i++) {
 		if (i % 2)
@@ -68,10 +75,13 @@ require('http').createServer(function (req, resp) {
 		r.sadd('names', name, function (err) {
 			if (err)
 				return resp.end('Error');
-			r.srandmember('names', function (err, whom) {
+			var m = r.multi();
+			m.srandmember('names');
+			m.srandmember('names');
+			m.exec(function (err, rs) {
 				if (err)
 					return resp.end('Error');
-				WHOM = whom;
+				CAST = {enemy: rs[0], friend: rs[1]};
 				var dest = DESTINY(name);
 				resp.end(flatten(dest));
 			});
