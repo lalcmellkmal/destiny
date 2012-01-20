@@ -71,6 +71,7 @@ require('http').createServer(function (req, resp) {
 	}
 	var name = u.query.name;
 	if (name) {
+		name = name.trim().replace(/\s\s+/g, ' ');
 		resp.writeHead(200, headers);
 		resp.write(preamble);
 		if (!name.match(/^[\w '&;.\-~#]{1,30}$/))
