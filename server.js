@@ -4,13 +4,13 @@ var fs = require('fs'),
 var r = require('redis').createClient();
 
 var fate = {};
-fate.method = 'of decompression,of asphyxiation,of blood loss,of head loss,of haemorrhage,of vaporization'.split(',');
-fate.adverb = 'horribly,quickly,slowly,painlessly,gloriously,honorably,quietly'.split(',');
-fate.where = "in the vacuum of space,in the canteen,in the parlor,on the bridge,in the airlock,in the barracks,at the bar,in the hold,on an invading ship,in their cabin,in $friend's cabin,in $enemy's cabin".split(',');
+fate.adverb = 'horribly,quickly,slowly,painlessly,gloriously,honorably,quietly,transcendentally,nobly,mercilessly'.split(',');
+fate.method = 'of decompression,of asphyxiation,of blood loss,of head loss,of haemorrhage,of vaporization,of shock,of incineration,of hypothermia,of stab wound'.split(',');
 fate.cause = 'at the hand of $enemy,by backstab courtesy of $enemy,by their own undoing,to avenge $enemy'.split(',');
-fate.activity = 'while trying to $assist $friend,while $assisting $friend,while failing to $assist $friend'.split(',');
-fate.assist = 'protect,save,hold on to,find,make their peace with'.split(',');
-fate.assisting = 'protecting,saving,holding on to,finding,making their peace with'.split(',');
+fate.where = "in the vacuum of space,in the canteen,in the parlor,on the bridge,in the airlock,in the barracks,at the bar,in the hold,on an invading ship,in their cabin,in $friend's cabin,in $enemy's cabin,in the lookout,in the cosmic ocean,on an asteroid,in hyperspace,in the ballroom,in the wine cellar,on an allied ship,in an escape pod".split(',');
+fate.activity = 'while trying to $assist $friend,while $assisting $friend,while failing to $assist $friend,after $assisting $friend'.split(',');
+fate.assist = 'protect,save,hold on to,find,make their peace with,backstab,negotiate with,recruit,mug,establish contact with'.split(',');
+fate.assisting = 'protecting,saving,holding on to,finding,making their peace with,backstabbing,negotiating with,recruiting,mugging,establishing contact with'.split(',');
 
 var CAST;
 
@@ -19,7 +19,10 @@ function DESTINY(victim) {
 	if (!dead)
 		return [victim, ' will survive.'];
 
-	var bits = ['adverb', 'method', 'cause'];
+	var bits = [];
+	if (roll(3))
+		bits.push('adverb');
+	bits.push('method', 'cause');
 	if (flip())
 		bits.push('activity');
 	bits.push('where');
