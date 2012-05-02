@@ -74,18 +74,25 @@ require('http').createServer(function (req, resp) {
 		name = name.trim().replace(/\s\s+/g, ' ');
 		resp.writeHead(200, headers);
 		resp.write(preamble);
-		if (!name.match(/^[\w '&;.\-~#]{1,30}$/))
+		var uniq = name.toLowerCase().replace(/[^a-z]+/g, '');
+		if (!name.match(/^[\w '&;.\-~#]{1,30}$/) || !uniq)
 			return resp.end('Bad name.');
-		r.sadd('names', name, function (err) {
+		r.hincrby('nameuses', uniq, 1, function (err, n) {
 			if (err)
 				return resp.end('Error');
 			var m = r.multi();
 			m.srandmember('names');
 			m.srandmember('names');
+			if (n == 3)
+				m.sadd('names', name);
 			m.exec(function (err, rs) {
-				if (err)
+				if (err) {
+					r.hincrby('nameuses', uniq, -1);
 					return resp.end('Error');
+				}
 				CAST = {enemy: rs[0], friend: rs[1]};
+				if (!CAST.enemy && !CAST.friend)
+					CAST.enemy = CAST.friend = name;
 				var dest = DESTINY(name);
 				resp.end(flatten(dest));
 			});
