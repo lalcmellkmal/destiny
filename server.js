@@ -6,12 +6,20 @@ var r = require('redis').createClient();
 var fate = {};
 fate.adverb = 'horribly,quickly,slowly,painlessly,gloriously,honorably,quietly,transcendentally,nobly,mercilessly,lewdly'.split(',');
 fate.method = 'of decompression,of asphyxiation,of blood loss,of head loss,of haemorrhage,of vaporization,of shock,of incineration,of hypothermia,of stab wound,of blunt trauma,of crushing,of penetration,of impalement,of disembowelment,of electrocution,of infection,of poisoning'.split(',');
-fate.cause = 'at the hand of $enemy,by backstab courtesy of $enemy,by their own undoing,to avenge $enemy,from horseplay'.split(',');
-fate.where = "in the vacuum of space,in the canteen,in the parlor,on the bridge,in the airlock,in the barracks,at the bar,in the hold,on an invading ship,in their cabin,in $friend's cabin,in $enemy's cabin,in the lookout,in the cosmic ocean,on an asteroid,in hyperspace,in the ballroom,in the wine cellar,on an allied ship,in an escape pod,in the engine room,in the closet,in the cafeteria,in the freezer room,in the meat locker".split(',');
+fate.cause = 'at the hand of $enemy,by $plot courtesy of $enemy,by their own undoing,to avenge $enemy,from horseplay,by order of $enemy'.split(',');
+fate.plot = "backstab,facestab,gank,ritual,firearm".split(',');
+fate.where = "in the $casual,in the $classy,in the $ops,$inspace,$incabin".split(',');
+fate.casual = "canteen,closet,freezer room,meat locker".split(',');
+fate.classy = "ballroom,wine cellar,parlor".split(',');
+fate.ops = "engine room,lookout,barracks,hold,airlock".split(',');
+fate.inspace = "in the vacuum of space,on an invading ship,in the cosmic ocean,on an asteroid,in hyperspace,on an allied ship,in an escape pod,on the bridge,at the bar".split(',');
+fate.incabin = "in their cabin,in $friend's cabin,in $enemy's cabin".split(',');
 fate.activity = 'while trying to $assist $friend,while $assisting $friend,while failing to $assist $friend,after $assisting $friend'.split(',');
-fate.assist = 'protect,save,hold on to,find,make their peace with,backstab,negotiate with,recruit,mug,establish contact with,rape,be $lewd with'.split(',');
-fate.assisting = 'protecting,saving,holding on to,finding,making their peace with,backstabbing,negotiating with,recruiting,mugging,establishing contact with,raping,being $lewd with'.split(',');
-fate.lewd = 'lewd,hot and heavy,tsundere,yandere,flirty,incestual,tender and loving,awkward,shy,consensual,non-consensual,perfectly innocent,downright dirty,disingenuous'.split(',');
+fate.assist = '$assistmisc,protect,save,hold on to,find,make their peace with,backstab,rape,be $lewd with,be very $lewd with'.split(',');
+fate.assisting = '$assistingmisc,protecting,saving,holding on to,finding,making their peace with,backstabbing,raping,being $lewd with,being very $lewd with'.split(',');
+fate.assistmisc = 'negotiate with,recruit,establish contact with,mug'.split(',');
+fate.assistingmisc = 'negotiating with,recruiting,establishing contact with,mugging'.split(',');
+fate.lewd = 'lewd,hot and heavy,tsundere,yandere,flirty,incestual,tender and loving,awkward,shy,consensual,non-consensual,innocent,downright dirty,disingenuous'.split(',');
 
 var CAST;
 
@@ -21,7 +29,7 @@ function DESTINY(victim) {
 		return [victim, ' will survive.'];
 
 	var bits = [];
-	if (roll(3))
+	if (roll(3) == 1)
 		bits.push('adverb');
 	bits.push('method', 'cause');
 	if (flip())
