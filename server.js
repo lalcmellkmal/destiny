@@ -2,6 +2,7 @@ var config = require('./config'),
     fs = require('fs'),
     url = require('url');
 
+process.chdir(__dirname);
 var r = require('redis').createClient(config.REDIS_PORT);
 
 var fate = {};
