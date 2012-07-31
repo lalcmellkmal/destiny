@@ -1,7 +1,8 @@
-var fs = require('fs'),
+var config = require('./config'),
+    fs = require('fs'),
     url = require('url');
 
-var r = require('redis').createClient();
+var r = require('redis').createClient(config.REDIS_PORT);
 
 var fate = {};
 fate.adverb = 'horribly,quickly,slowly,painlessly,gloriously,honorably,quietly,transcendentally,nobly,mercilessly,lewdly'.split(',');
@@ -111,7 +112,7 @@ require('http').createServer(function (req, resp) {
 		resp.writeHead(200, headers);
 		resp.end(introduce);
 	}
-}).listen(8000);
+}).listen(config.LISTEN_PORT);
 
 var headers = {'Content-Type': 'text/html; charset=UTF-8'};
 var introduce = fs.readFileSync('intro.html', 'UTF-8');
