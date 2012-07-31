@@ -2,8 +2,7 @@ var config = require('./config'),
     fs = require('fs'),
     url = require('url');
 
-process.chdir(__dirname);
-var r = require('redis').createClient(config.REDIS_PORT);
+var r;
 
 var fate = {};
 fate.adverb = 'horribly,quickly,slowly,painlessly,gloriously,honorably,quietly,transcendentally,nobly,mercilessly,lewdly'.split(',');
@@ -73,7 +72,7 @@ function randomOf(list) {
 	return list[roll(list.length)];
 }
 
-require('http').createServer(function (req, resp) {
+var server = require('http').createServer(function (req, resp) {
 	var u = url.parse(req.url, true)
 	if (u.pathname != '/') {
 		resp.writeHead(404);
@@ -113,11 +112,10 @@ require('http').createServer(function (req, resp) {
 		resp.writeHead(200, headers);
 		resp.end(introduce);
 	}
-}).listen(config.LISTEN_PORT);
+});
 
 var headers = {'Content-Type': 'text/html; charset=UTF-8'};
-var introduce = fs.readFileSync('intro.html', 'UTF-8');
-var preamble = fs.readFileSync('head.html', 'UTF-8');
+var introduce, preamble;
 
 function safe(input) {
 	return {safe: input};
@@ -136,4 +134,21 @@ function flatten(input) {
 var entities = {'&' : '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'};
 function escapeHtml(html) {
 	return html.replace(/[&<>"]/g, function (c) { return entities[c]; });
+}
+
+function start() {
+	r = require('redis').createClient(config.REDIS_PORT);
+	process.chdir(__dirname);
+	introduce = fs.readFileSync('intro.html', 'UTF-8');
+	preamble = fs.readFileSync('head.html', 'UTF-8');
+	server.listen(config.LISTEN_PORT);
+}
+
+if (config.DAEMON) {
+	var pidfile = require('path').join(__dirname, 'destiny.pid');
+	var pid = require('daemon').daemonize({}, pidfile);
+	start();
+}
+else {
+	start();
 }
